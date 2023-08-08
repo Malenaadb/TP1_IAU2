@@ -1,0 +1,68 @@
+---
+title: "Trabajo Practico N°1"
+author: "Malena De Baere"
+date: "2023-08-06"
+output: html_document
+---
+
+En el marco del trabajo práctico N°1 para la materia *Instrumentos de Análisis Urbano II*, se realizará el análisis de un dataframe referido a la circulación de personas en los subtes de la Ciudad de Buenos Aires que se obtuvo del portal abierto de datos del Gobierno de la Ciudad de Buenos Aires. Dicho data frame contiene información relativa a la demanda de pasajeros en cada estacion en rangos de a 15 minutos del año 2020.
+
+A los fines de este trabajo, se intentará identificar cuales son las lineas de subte qué tienen mayor cantidad de demanda. Dentro de esto, se intentará esclarecer dentro de estas lineas, cuales son aquellas estaciones con mayor cantidad de circulación y en qué mes se dió esto. 
+
+Para esto, se realizarán distintos pasos para la importación, limpieza y ordenamiento de la información que permitirán arribar a la respuesta de las preguntas mencionadas en el párrafo anterior. 
+
+```{r}
+library(tidyr)
+library(haven)
+library(glue)
+library(janitor)
+library(sf)
+```
+
+```{r}
+library("dplyr")
+```
+
+
+A continuación, se importará la base de datos mencionada más arriba directamente con el URL del portal de datos abiertos. 
+
+
+
+
+```{r}
+datos_subte<-read.csv("https://cdn.buenosaires.gob.ar/datosabiertos/datasets/sbase/subte-viajes-molinetes/BaseUnificadaEstaciones.csv",  stringsAsFactors = TRUE,
+                         encoding = "UTF-8")
+```
+```{r}
+summary(datos_subte)
+```
+
+Debido al formato en el cual se encontraba la base, se procedio a separar el formato en el cual estaba identificada la fecha y poder, posteriormente, agrupar la circulación de cada estación en cada mes. 
+
+```{r}
+datos_subte <- separate(datos_subte, FECHA, c("MES", "DIA", "AÑO"), sep="/") 
+```
+
+
+```{r}
+
+
+data <- datos_subte  %>% 
+	group_by(MES,ESTACION) %>%
+	summarise(TOTAL_CANTIDAD = sum(CANTIDAD))
+
+```
+```{r}
+data <-  arrange(data,(as.integer(MES)))  
+
+```
+Por ultimo, se procedió a ordenar la información de cada vez en orden ascendente. 
+
+Una vez agrupado, se identifican las estaciones que mayor circulación tuvieron. El resultado demuestra qué, las cabeceras de cada linea de subte fueron las que contaron con mayor circulación y esto se dió, sobre todo, en el mes 3. Se identifica a su vez, que la base analizada solo posee registros entre el mes de marzo (3) al mes de noviembre (11). Debido a qué el año 2020 fue un año de pandemía, es que se comprende que la mayor cantidad de circulación se de en las cabeceras ya que muchas estaciones estuvieron cerradas al público general entre los meses de abril a octubre (que fue que se reestablecieron el resto de las estaciones de las lineas). 
+
+
+
+
+
+
+
